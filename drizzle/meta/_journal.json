@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "mysql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1787175389185,
+      "tag": "0000_real_mother_askani",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1787175664988,
+      "tag": "0001_brave_vision",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1787178325715,
+      "tag": "0002_wide_shaman",
+      "breakpoints": true
+    }
+  ]
+}

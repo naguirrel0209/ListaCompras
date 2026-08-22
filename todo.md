@@ -1,0 +1,42 @@
+# Proyecto: Lista Familiar
+
+- [x] Modelar grupos familiares, listas de compra, artículos, etiquetas y actividades en la base de datos.
+- [x] Implementar el acceso por código de invitación y contraseña opcional mediante una sesión segura persistente.
+- [x] Implementar procedimientos del servidor para crear y unirse a grupos, gestionar listas y consultar el estado actual.
+- [x] Implementar procedimientos protegidos para crear, editar, archivar, marcar y restaurar artículos.
+- [x] Validar todas las entradas en el servidor y restringir cada operación al grupo de la sesión.
+- [x] Registrar las acciones relevantes en el historial de cada grupo.
+- [x] Diseñar una pantalla inicial elegante, informativa y completamente en español.
+- [x] Diseñar un panel de listas optimizado primero para móvil, con gestión de varias listas y código compartible.
+- [x] Crear el formulario de artículos con cantidad, categoría, etiquetas, validación y controles táctiles accesibles.
+- [x] Añadir búsqueda, filtros y opciones de ordenación para organizar los artículos.
+- [x] Añadir diálogos de confirmación, avisos temporales, estados vacíos, carga y errores en español.
+- [x] Implementar sincronización cercana a tiempo real mediante actualización automática de datos en el cliente.
+- [x] Crear datos de demostración reproducibles y documentar sus credenciales únicamente en el README.
+- [x] Redactar documentación del proyecto íntegramente en español, incluyendo configuración, ejecución y decisiones técnicas.
+- [x] Escribir pruebas Vitest para crear listas, añadir artículos, alternar su estado y proteger el acceso entre familias.
+- [x] Ejecutar pruebas, comprobación de tipos y build de producción; corregir cualquier fallo detectado.
+- [x] Verificar visualmente las pantallas de inicio y panel en escritorio y móvil.
+- [x] Eliminar cualquier secreto de respaldo y exigir una variable segura para la firma de sesión familiar.
+- [x] Registrar la incorporación a una familia y el cambio de nombre de listas en el historial compartido.
+- [x] Añadir estados de error en español para las consultas de listas, artículos e historial, evitando mostrar estados vacíos cuando la carga falle.
+- [x] Validar visualmente la experiencia de acceso y consultas ante fallos de carga controlados.
+- [x] Verificar visualmente el panel principal autenticado en móvil y escritorio, con listas, artículos e historial visibles.
+- [x] Simular fallos controlados de consultas clave y validar los mensajes de error y reintento en español.
+- [x] Verificar el panel autenticado tanto en una vista móvil real como en una vista de escritorio real.
+- [x] Simular un fallo controlado de la consulta de sesión familiar y validar su mensaje de error en español.
+- [x] Comprobar que el botón Reintentar recupera las listas, artículos e historial después de un fallo simulado.
+- [x] Registrar evidencia legible del estado de error de sesión familiar con su mensaje y acción de reintento en español.
+- [x] Obtener una vista textual directa del navegador del fallo de sesión familiar que muestre el mensaje y la acción Reintentar.
+- [x] Evitar que la ausencia normal de sesión familiar se registre como error de API durante la pantalla de acceso inicial.
+- [x] Añadir fecha límite de compra y comentario opcional a los artículos, con validación y visualización.
+- [x] Sustituir la categoría por prioridad con cuatro niveles: crítica, alta, media y baja.
+- [x] Permitir eliminar una lista con confirmación, manteniendo la seguridad por familia.
+- [x] Mostrar de forma inequívoca la lista de destino antes de añadir un artículo.
+- [x] Incorporar un modo oscuro persistente y accesible en toda la aplicación.
+- [x] Ampliar migraciones, seed, documentación y pruebas para las nuevas capacidades.
+- [x] Verificar el modo oscuro activo y persistente en la pantalla de acceso y el panel autenticado.
+- [x] Sustituir los overrides frágiles del modo oscuro por tokens consistentes en los componentes principales.
+- [x] Verificar el modo oscuro persistente también en la pantalla de acceso después de recargar.
+- [x] Aplicar superficies de tema explícitas a historial, diálogos, panel móvil y tarjetas de artículos sin selectores estructurales genéricos.
+- [x] Aplicar tokens semánticos directamente a historial, diálogos, panel móvil y tarjetas de artículos; retirar selectores estructurales del tema oscuro.
