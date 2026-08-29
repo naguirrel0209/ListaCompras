@@ -55,6 +55,7 @@ export const shoppingLists = mysqlTable("shoppingLists", {
 
 export const shoppingItems = mysqlTable("shoppingItems", {
   id: varchar("id", { length: 32 }).primaryKey(),
+  sharedItemId: varchar("sharedItemId", { length: 32 }),
   shoppingListId: varchar("shoppingListId", { length: 32 }).notNull(),
   name: varchar("name", { length: 120 }).notNull(),
   quantity: decimal("quantity", { precision: 10, scale: 2 }).notNull(),
@@ -73,6 +74,7 @@ export const shoppingItems = mysqlTable("shoppingItems", {
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 }, table => [
+  index("shoppingItems_shared_idx").on(table.sharedItemId),
   index("shoppingItems_list_idx").on(table.shoppingListId),
   index("shoppingItems_status_idx").on(table.status),
   index("shoppingItems_priority_idx").on(table.priority),
