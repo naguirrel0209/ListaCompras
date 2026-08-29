@@ -85,16 +85,30 @@
 .dark .theme-page { color: var(--foreground); }
 .dark .theme-page .font-display { color: var(--foreground); }
 .dark .theme-surface { background-color: var(--card) !important; border-color: var(--border) !important; }
-.dark .theme-soft { background-color: var(--muted) !important; border-color: var(--border) !important; }
+.dark .theme-soft { background-color: var(--muted) !important; border-color: var(--border) !important; color: var(--foreground) !important; }
+.dark .theme-page [class*="bg-white"] { background-color: var(--secondary) !important; }
+.dark .theme-page [class*="bg-[#fff"],
+.dark .theme-page [class*="bg-[#f"] { background-color: var(--muted) !important; }
+.dark .theme-page [class*="border-[#"] { border-color: var(--border) !important; }
+.dark .theme-page [class*="text-[#4"],
+.dark .theme-page [class*="text-[#5"],
+.dark .theme-page [class*="text-[#6"],
+.dark .theme-page [class*="text-[#7"] { color: var(--foreground) !important; }
+.dark .theme-page [class*="text-[#8"],
+.dark .theme-page [class*="text-[#9"],
+.dark .theme-page [class*="text-[#a"],
+.dark .theme-page [class*="text-[#b"] { color: var(--accent-foreground) !important; }
+.dark .theme-page label { color: var(--foreground) !important; }
 .dark .theme-page input,
 .dark .theme-page select,
 .dark .theme-page textarea { background-color: var(--card) !important; border-color: var(--border) !important; color: var(--foreground) !important; }
+.dark .theme-page option { background-color: var(--card); color: var(--foreground); }
 .dark .theme-page input::placeholder,
 .dark .theme-page textarea::placeholder { color: var(--muted-foreground) !important; }
 .dark .theme-page .text-muted-foreground { color: var(--muted-foreground) !important; }
 .dark .theme-page .theme-icon-control { background-color: var(--secondary) !important; color: var(--foreground) !important; }
 .dark .theme-page .theme-list-tab { background-color: var(--muted) !important; color: var(--foreground) !important; }
-.dark .theme-page .theme-list-tab-active { background-color: oklch(0.47 0.085 151) !important; color: white !important; }
+.dark .theme-page .theme-list-tab-active { background-color: oklch(0.39 0.085 151) !important; color: white !important; }
 .dark .theme-item-card { background-color: oklch(0.27 0.018 150) !important; border-color: var(--border) !important; }
 .dark .theme-item-card h3,
 .dark .theme-surface p:not(.text-muted-foreground) { color: var(--foreground) !important; }
@@ -102,6 +116,17 @@
 .dark .theme-page article { background-color: oklch(0.27 0.018 150) !important; border-color: var(--border) !important; }
 .dark .theme-page article h3 { color: var(--foreground) !important; }
 .dark .theme-page article p:not(.text-muted-foreground) { color: oklch(0.84 0.018 102) !important; }
+.dark .theme-page .theme-empty-state { background-color: oklch(0.255 0.017 150) !important; border-color: var(--border) !important; }
+.dark .theme-page .theme-filter-panel { background-color: var(--muted) !important; }
+.dark .theme-page .theme-tag { background-color: var(--secondary) !important; color: var(--foreground) !important; }
+.dark .theme-page .theme-note { background-color: oklch(0.23 0.017 150) !important; color: var(--foreground) !important; }
+.dark .theme-page .theme-priority-critical { background-color: oklch(0.34 0.065 31) !important; color: oklch(0.91 0.055 31) !important; }
+.dark .theme-page .theme-priority-high { background-color: oklch(0.35 0.055 73) !important; color: oklch(0.91 0.075 82) !important; }
+.dark .theme-page .theme-priority-medium { background-color: oklch(0.32 0.05 151) !important; color: oklch(0.87 0.07 149) !important; }
+.dark .theme-page .theme-priority-low { background-color: oklch(0.32 0.035 244) !important; color: oklch(0.86 0.05 242) !important; }
+.dark .theme-page .theme-action-button { color: var(--muted-foreground) !important; }
+.dark .theme-page .theme-action-button:hover { background-color: var(--secondary) !important; color: var(--foreground) !important; }
+.dark .theme-page .theme-danger-action:hover { color: oklch(0.82 0.095 35) !important; }
 .dark .theme-access-card { border-color: var(--border) !important; color: var(--foreground) !important; }
 .dark .theme-access-create { background-color: oklch(0.29 0.035 151) !important; }
 .dark .theme-access-join { background-color: oklch(0.3 0.035 75) !important; }

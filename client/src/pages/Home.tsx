@@ -50,7 +50,12 @@ function priorityInfo(priority: ItemPriority) {
 }
 
 function priorityClass(priority: ItemPriority) {
-  return ({ critical: "bg-[#ffe1da] text-[#b44938]", high: "bg-[#fff0cf] text-[#9a6620]", medium: "bg-[#e7f2ea] text-[#347653]", low: "bg-[#e8edf4] text-[#55718d]" } as const)[priority];
+  return ({
+    critical: "theme-priority-critical bg-[#ffe1da] text-[#b44938] dark:bg-[#5b2b25] dark:text-[#ffd7ce]",
+    high: "theme-priority-high bg-[#fff0cf] text-[#9a6620] dark:bg-[#4e3a1e] dark:text-[#ffe2a7]",
+    medium: "theme-priority-medium bg-[#e7f2ea] text-[#347653] dark:bg-[#234c39] dark:text-[#bfe8cd]",
+    low: "theme-priority-low bg-[#e8edf4] text-[#55718d] dark:bg-[#283748] dark:text-[#c6d9ec]",
+  } as const)[priority];
 }
 
 function dateInputValue(value: Date | null) {
@@ -326,15 +331,15 @@ function FamilyDashboard({ family }: { family: { family: { id: string; name: str
           </div>
         </header>
 
-        <section className="rise-in mt-4 overflow-hidden rounded-[2rem] bg-[#3f8765] px-5 py-6 text-[#fffdf8] soft-shadow sm:px-7 sm:py-8" style={{ animationDelay: "50ms" }}>
+        <section className="rise-in mt-4 overflow-hidden rounded-[2rem] bg-[#3f8765] px-5 py-6 text-[#fffdf8] soft-shadow dark:bg-[#2e6d52] sm:px-7 sm:py-8" style={{ animationDelay: "50ms" }}>
           <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="mb-2 flex items-center gap-2 text-xs font-bold tracking-[.12em] text-[#cde7d7] uppercase"><UsersRound className="size-3.5" /> La familia de</p>
+              <p className="mb-2 flex items-center gap-2 text-xs font-bold tracking-[.12em] text-[#cde7d7] uppercase dark:text-white"><UsersRound className="size-3.5" /> La familia de</p>
               <h1 className="font-display text-4xl tracking-[-.045em] sm:text-5xl">{family.family.name}</h1>
-              <p className="mt-2 text-sm text-[#dcefe4]">Hola, <span className="font-bold text-white">{family.memberName}</span>. La compra se hace mejor en compañía.</p>
+              <p className="mt-2 text-sm text-[#dcefe4] dark:text-white">Hola, <span className="font-bold text-white">{family.memberName}</span>. La compra se hace mejor en compañía.</p>
             </div>
             <div className="flex items-center justify-between gap-3 rounded-2xl bg-white/13 px-4 py-3 backdrop-blur-sm sm:min-w-64">
-              <div><p className="text-[11px] font-bold tracking-[.1em] text-[#cde7d7] uppercase">Código familiar</p><p className="mt-0.5 font-mono text-lg font-bold tracking-[.15em] text-white">{family.family.inviteCode}</p></div>
+              <div><p className="text-[11px] font-bold tracking-[.1em] text-[#cde7d7] uppercase dark:text-white">Código familiar</p><p className="mt-0.5 font-mono text-lg font-bold tracking-[.15em] text-white">{family.family.inviteCode}</p></div>
               <button onClick={copyCode} className="grid size-10 place-items-center rounded-xl bg-white/16 text-white hover:bg-white/25" aria-label="Copiar código familiar"><Copy className="size-4" /></button>
             </div>
           </div>
@@ -349,19 +354,19 @@ function FamilyDashboard({ family }: { family: { family: { id: string; name: str
               </div>
               <div className="flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none]">
                 {listsQuery.isLoading && <ListTabsSkeleton />}
-                {listsQuery.data?.map(list => <div key={list.id} className={`relative shrink-0 rounded-2xl transition-all ${activeList === list.id ? "bg-[#3f8765] text-white lift-shadow" : "bg-[#f1f2eb] text-[#556052] hover:bg-[#e6ebdf]"}`}><button onClick={() => setActiveListId(list.id)} className="w-full px-4 py-3 pr-10 text-left"><p className="max-w-28 truncate text-sm font-bold">{list.name}</p><p className={`mt-0.5 text-[11px] ${activeList === list.id ? "text-[#d5eddf]" : "text-[#7b8376]"}`}>{list.createdBy === family.memberName ? "Tu lista" : `Por ${list.createdBy}`}</p></button><button onClick={() => setRemovingList({ id: list.id, name: list.name })} className={`absolute right-1.5 top-1.5 grid size-7 place-items-center rounded-lg ${activeList === list.id ? "text-white/75 hover:bg-white/15 hover:text-white" : "text-[#7b8376] hover:bg-white/70 hover:text-[#b55d45]"}`} aria-label={`Eliminar la lista ${list.name}`}><Trash2 className="size-3" /></button></div>)}
+                {listsQuery.data?.map(list => <div key={list.id} className={`relative shrink-0 rounded-2xl transition-all ${activeList === list.id ? "theme-list-tab-active bg-[#3f8765] text-white lift-shadow" : "theme-list-tab bg-[#f1f2eb] text-[#556052] hover:bg-[#e6ebdf]"}`}><button onClick={() => setActiveListId(list.id)} className="w-full px-4 py-3 pr-10 text-left"><p className="max-w-28 truncate text-sm font-bold">{list.name}</p><p className={`mt-0.5 text-[11px] ${activeList === list.id ? "text-[#d5eddf]" : "text-[#7b8376]"}`}>{list.createdBy === family.memberName ? "Tu lista" : `Por ${list.createdBy}`}</p></button><button onClick={() => setRemovingList({ id: list.id, name: list.name })} className={`theme-action-button theme-danger-action absolute right-1.5 top-1.5 grid size-7 place-items-center rounded-lg ${activeList === list.id ? "text-white/75 hover:bg-white/15 hover:text-white" : "text-[#7b8376] hover:bg-white/70 hover:text-[#b55d45]"}`} aria-label={`Eliminar la lista ${list.name}`}><Trash2 className="size-3" /></button></div>)}
               </div>
             </section>
 
             {activeList ? <>
               <section className="theme-surface rounded-[1.75rem] border border-white/75 bg-[#fffdf8]/85 p-4 soft-shadow sm:p-5">
                 <div className="mb-4 flex items-center justify-between gap-3"><div><h2 className="font-display text-2xl tracking-[-.04em]">Añade algo a la lista</h2><p className="mt-1 text-xs text-muted-foreground">Con pocos datos, todos saben qué falta.</p></div><div className="grid size-11 shrink-0 place-items-center rounded-2xl bg-[#f8dfae] text-[#8d642d]"><PackagePlus className="size-5" /></div></div>
-                <div className="mb-3 flex items-center gap-2 rounded-xl bg-[#e8f4ea] px-3 py-2 text-xs font-bold text-[#347653]"><ListPlus className="size-3.5" /> Lista activa: <span className="truncate">{activeListName}</span></div>
+                <div className="theme-soft mb-3 flex items-center gap-2 rounded-xl bg-[#e8f4ea] px-3 py-2 text-xs font-bold text-[#347653]"><ListPlus className="size-3.5" /> Lista activa: <span className="truncate">{activeListName}</span></div>
                 <form onSubmit={submitNewItem} className="grid gap-3 md:grid-cols-2 xl:grid-cols-[minmax(0,1.2fr)_150px_150px]">
                   <Input value={newItem.name} onChange={event => setNewItem({ ...newItem, name: event.target.value })} placeholder="Ej. Manzanas" aria-label="Nombre del artículo" className="h-12 rounded-xl border-[#e2dfd5] bg-white" />
                   <select value={newItem.priority} onChange={event => setNewItem({ ...newItem, priority: event.target.value as ItemPriority })} aria-label="Prioridad" className="h-12 rounded-xl border border-[#e2dfd5] bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-primary/35">{priorities.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select>
                   <Input type="date" value={newItem.deadline} onChange={event => setNewItem({ ...newItem, deadline: event.target.value })} aria-label="Fecha límite de compra" className="h-12 rounded-xl border-[#e2dfd5] bg-white" />
-                  <div className="space-y-2 rounded-xl border border-[#e2dfd5] bg-white p-3 md:col-span-2 xl:col-span-3">
+                  <div className="theme-soft space-y-2 rounded-xl border border-[#e2dfd5] bg-white p-3 md:col-span-2 xl:col-span-3">
                     <div className="flex items-center justify-between gap-3">
                       <p className="text-xs font-bold text-[#4f594c]">Agregar en listas</p>
                       <button type="button" onClick={() => setNewItem({ ...newItem, deadline: "" })} className="text-xs font-bold text-[#3f8765] hover:text-[#367653]">Sin fecha límite</button>
@@ -369,7 +374,7 @@ function FamilyDashboard({ family }: { family: { family: { id: string; name: str
                     <div className="flex flex-wrap gap-2">
                       {listsQuery.data?.map(list => {
                         const checked = selectedNewItemListIds.includes(list.id);
-                        return <label key={list.id} className={`inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-bold transition-colors ${checked ? "border-[#3f8765] bg-[#e7f2ea] text-[#347653]" : "border-[#e2dfd5] bg-[#f7f5ee] text-[#667060]"}`}><input type="checkbox" checked={checked} onChange={() => toggleNewItemList(list.id)} className="size-4 accent-[#3f8765]" />{list.name}</label>;
+                        return <label key={list.id} className={`inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-bold transition-colors ${checked ? "border-[#3f8765] bg-[#e7f2ea] text-[#347653] dark:bg-[#234c39] dark:text-[#c8f2d6]" : "border-[#e2dfd5] bg-[#f7f5ee] text-[#667060] dark:bg-secondary dark:text-foreground"}`}><input type="checkbox" checked={checked} onChange={() => toggleNewItemList(list.id)} className="size-4 accent-[#3f8765]" />{list.name}</label>;
                       })}
                     </div>
                   </div>
@@ -381,11 +386,11 @@ function FamilyDashboard({ family }: { family: { family: { id: string; name: str
 
               <section className="theme-surface rounded-[1.75rem] border border-white/75 bg-[#fffdf8]/85 p-4 soft-shadow sm:p-5">
                 <div className="flex flex-wrap items-end justify-between gap-3">
-                  <div><div className="flex items-center gap-2"><h2 className="font-display text-2xl tracking-[-.04em]">La lista</h2><span className="rounded-full bg-[#e7f2ea] px-2.5 py-1 text-xs font-bold text-[#3f8765]">{pendingCount} pendiente{pendingCount === 1 ? "" : "s"}</span></div><p className="mt-1 text-xs text-muted-foreground">Se actualiza automáticamente mientras compráis.</p></div>
-                  <button onClick={() => setShowFilters(value => !value)} className={`inline-flex h-10 items-center gap-2 rounded-xl px-3 text-xs font-bold transition-colors ${showFilters ? "bg-[#e7f2ea] text-[#327653]" : "bg-[#f1f2eb] text-[#667060] hover:bg-[#e7ebdf]"}`}><SlidersHorizontal className="size-4" /> Organizar <ChevronDown className={`size-3.5 transition-transform ${showFilters ? "rotate-180" : ""}`} /></button>
+                  <div><div className="flex items-center gap-2"><h2 className="font-display text-2xl tracking-[-.04em]">La lista</h2><span className="rounded-full bg-[#e7f2ea] px-2.5 py-1 text-xs font-bold text-[#3f8765] dark:bg-[#234c39] dark:text-[#c8f2d6]">{pendingCount} pendiente{pendingCount === 1 ? "" : "s"}</span></div><p className="mt-1 text-xs text-muted-foreground">Se actualiza automáticamente mientras compráis.</p></div>
+                  <button onClick={() => setShowFilters(value => !value)} className={`inline-flex h-10 items-center gap-2 rounded-xl px-3 text-xs font-bold transition-colors ${showFilters ? "bg-[#e7f2ea] text-[#327653] dark:bg-[#234c39] dark:text-[#c8f2d6]" : "bg-[#f1f2eb] text-[#667060] hover:bg-[#e7ebdf] dark:bg-secondary dark:text-foreground"}`}><SlidersHorizontal className="size-4" /> Organizar <ChevronDown className={`size-3.5 transition-transform ${showFilters ? "rotate-180" : ""}`} /></button>
                 </div>
                 <div className="mt-4 flex gap-2 overflow-x-auto pb-1"><StatusButton value="pending" current={status} onChange={setStatus} /><StatusButton value="completed" current={status} onChange={setStatus} /><StatusButton value="archived" current={status} onChange={setStatus} /><StatusButton value="all" current={status} onChange={setStatus} /></div>
-                {showFilters && <div className="rise-in mt-4 grid gap-3 rounded-2xl bg-[#f7f5ee] p-3 sm:grid-cols-2 lg:grid-cols-4"><div className="relative"><Search className="pointer-events-none absolute left-3 top-3.5 size-4 text-[#7d857a]" /><Input value={search} onChange={event => setSearch(event.target.value)} placeholder="Buscar artículo o comentario" aria-label="Buscar artículo o comentario" className="h-11 rounded-xl border-transparent bg-white pl-9" /></div><select value={priorityFilter} onChange={event => setPriorityFilter(event.target.value as ItemPriority | "")} aria-label="Filtrar por prioridad" className="h-11 rounded-xl border border-transparent bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-primary/35"><option value="">Todas las prioridades</option>{priorities.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select><select value={tag} onChange={event => setTag(event.target.value)} aria-label="Filtrar por etiqueta" className="h-11 rounded-xl border border-transparent bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-primary/35"><option value="">Todas las etiquetas</option>{allTags.map(option => <option key={option} value={option}>{option}</option>)}</select><div className="flex gap-2"><select value={sortBy} onChange={event => setSortBy(event.target.value as SortBy)} aria-label="Ordenar artículos" className="min-w-0 flex-1 h-11 rounded-xl border border-transparent bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-primary/35">{sortOptions.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select><button onClick={clearFilters} className="grid size-11 shrink-0 place-items-center rounded-xl bg-white text-[#697264] hover:bg-[#ebeee6]" aria-label="Limpiar filtros"><X className="size-4" /></button></div></div>}
+                {showFilters && <div className="theme-filter-panel rise-in mt-4 grid gap-3 rounded-2xl bg-[#f7f5ee] p-3 sm:grid-cols-2 lg:grid-cols-4"><div className="relative"><Search className="pointer-events-none absolute left-3 top-3.5 size-4 text-[#7d857a]" /><Input value={search} onChange={event => setSearch(event.target.value)} placeholder="Buscar artículo o comentario" aria-label="Buscar artículo o comentario" className="h-11 rounded-xl border-transparent bg-white pl-9" /></div><select value={priorityFilter} onChange={event => setPriorityFilter(event.target.value as ItemPriority | "")} aria-label="Filtrar por prioridad" className="h-11 rounded-xl border border-transparent bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-primary/35"><option value="">Todas las prioridades</option>{priorities.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select><select value={tag} onChange={event => setTag(event.target.value)} aria-label="Filtrar por etiqueta" className="h-11 rounded-xl border border-transparent bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-primary/35"><option value="">Todas las etiquetas</option>{allTags.map(option => <option key={option} value={option}>{option}</option>)}</select><div className="flex gap-2"><select value={sortBy} onChange={event => setSortBy(event.target.value as SortBy)} aria-label="Ordenar artículos" className="min-w-0 flex-1 h-11 rounded-xl border border-transparent bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-primary/35">{sortOptions.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select><button onClick={clearFilters} className="theme-action-button grid size-11 shrink-0 place-items-center rounded-xl bg-white text-[#697264] hover:bg-[#ebeee6]" aria-label="Limpiar filtros"><X className="size-4" /></button></div></div>}
                 {itemsQuery.error ? <QueryErrorPanel message="No pudimos actualizar los artículos de esta lista." onRetry={() => itemsQuery.refetch()} /> : <ItemList isLoading={itemsQuery.isLoading} entries={itemsQuery.data ?? []} onToggle={id => toggleItem.mutate({ itemId: id })} onEdit={item => setEditingItem(item)} onArchive={item => { setArchivingItem(item); setArchiveReason(""); }} onRestore={id => restoreItem.mutate({ itemId: id })} />}
               </section>
             </> : <EmptyLists onCreate={() => setShowNewList(true)} />}
@@ -406,8 +411,59 @@ function FamilyDashboard({ family }: { family: { family: { id: string; name: str
 
 function ItemList({ isLoading, entries, onToggle, onEdit, onArchive, onRestore }: { isLoading: boolean; entries: Array<{ item: { id: string; name: string; priority: ItemPriority; deadline: Date | null; note: string | null; tagsJson: string; status: "pending" | "completed" | "archived"; createdBy: string; completedBy: string | null; archiveReason: string | null }; listName: string }>; onToggle: (id: string) => void; onEdit: (item: { id: string; name: string; priority: ItemPriority; deadline: string; note: string; tags: string[] }) => void; onArchive: (item: { id: string; name: string }) => void; onRestore: (id: string) => void }) {
   if (isLoading) return <div className="mt-5 space-y-3"><ItemSkeleton /><ItemSkeleton /><ItemSkeleton /></div>;
-  if (!entries.length) return <div className="mt-5 rounded-2xl border border-dashed border-[#d6ddd2] bg-[#f9faf6] px-5 py-12 text-center"><div className="mx-auto grid size-12 place-items-center rounded-2xl bg-[#e6f1e8] text-[#4a8c68]"><ShoppingBasket className="size-5" /></div><h3 className="mt-4 font-display text-xl">Todo está en orden</h3><p className="mx-auto mt-1 max-w-64 text-sm leading-5 text-muted-foreground">No hay artículos que mostrar con estos filtros.</p></div>;
-  return <div className="mt-5 space-y-3">{entries.map(({ item, listName }) => { const tags = parseTags(item.tagsJson); const isCompleted = item.status === "completed"; const isArchived = item.status === "archived"; const priority = priorityInfo(item.priority); return <article key={item.id} className={`group relative flex gap-3 rounded-2xl border p-3.5 transition-all sm:p-4 ${isArchived ? "border-[#ead8cf] bg-[#fdf5f1]" : isCompleted ? "border-[#dce8df] bg-[#f3f8f3]" : "border-[#ebe7da] bg-white hover:-translate-y-0.5 hover:shadow-md"}`}><button onClick={() => !isArchived && onToggle(item.id)} disabled={isArchived} className={`mt-0.5 grid size-7 shrink-0 place-items-center rounded-full border-2 transition-colors ${isCompleted ? "border-[#438866] bg-[#438866] text-white" : isArchived ? "border-[#d9bdb1] bg-transparent text-transparent" : "border-[#c8d5c9] bg-white text-transparent hover:border-[#438866]"}`} aria-label={isCompleted ? `Marcar ${item.name} como pendiente` : `Marcar ${item.name} como comprado`}><Check className="size-4 stroke-[3]" /></button><div className="min-w-0 flex-1"><div className="flex flex-wrap items-center gap-x-2 gap-y-1"><h3 className={`font-bold ${isCompleted || isArchived ? "text-[#738074] line-through" : "text-[#3e483d]"}`}>{item.name}</h3><span className={`inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[11px] font-bold ${priorityClass(item.priority)}`}><Flag className="size-2.5" />{priority.label}</span></div><div className="mt-2 flex flex-wrap items-center gap-1.5"><span className="inline-flex items-center gap-1 text-[11px] font-semibold text-muted-foreground"><CalendarDays className="size-3" />{deadlineText(item.deadline)}</span>{tags.map(currentTag => <span key={currentTag} className="inline-flex items-center gap-1 rounded-full bg-[#f0f4ef] px-2 py-0.5 text-[11px] font-semibold text-[#667564]"><Tags className="size-2.5" />{currentTag}</span>)}{entries.some(entry => entry.listName !== listName) && <span className="text-[11px] text-muted-foreground">{listName}</span>}</div>{item.note && <p className="mt-2 rounded-lg bg-[#f6f5ef] px-2.5 py-1.5 text-xs leading-5 text-[#5b6658]">{item.note}</p>}<p className="mt-2 text-[11px] text-muted-foreground">Añadido por {item.createdBy}{isCompleted && item.completedBy ? ` · Comprado por ${item.completedBy}` : ""}{isArchived && item.archiveReason ? ` · ${item.archiveReason}` : ""}</p></div><div className="flex shrink-0 gap-1 self-start">{isArchived ? <button onClick={() => onRestore(item.id)} className="grid size-8 place-items-center rounded-lg text-[#6d786a] hover:bg-white hover:text-[#3f8765]" aria-label={`Restaurar ${item.name}`}><RotateCcw className="size-4" /></button> : <><button onClick={() => onEdit({ id: item.id, name: item.name, priority: item.priority, deadline: dateInputValue(item.deadline), note: item.note ?? "", tags })} className="grid size-8 place-items-center rounded-lg text-[#788175] hover:bg-[#edf2ea] hover:text-[#3f8765]" aria-label={`Editar ${item.name}`}><Pencil className="size-3.5" /></button><button onClick={() => onArchive({ id: item.id, name: item.name })} className="grid size-8 place-items-center rounded-lg text-[#788175] hover:bg-[#fff0eb] hover:text-[#b55d45]" aria-label={`Quitar ${item.name}`}><Trash2 className="size-3.5" /></button></>}</div></article>; })}</div>;
+  if (!entries.length) {
+    return (
+      <div className="theme-empty-state mt-5 rounded-2xl border border-dashed border-[#d6ddd2] bg-[#f9faf6] px-5 py-12 text-center">
+        <div className="mx-auto grid size-12 place-items-center rounded-2xl bg-[#e6f1e8] text-[#4a8c68] dark:bg-[#234c39] dark:text-[#c8f2d6]"><ShoppingBasket className="size-5" /></div>
+        <h3 className="mt-4 font-display text-xl">Todo está en orden</h3>
+        <p className="mx-auto mt-1 max-w-64 text-sm leading-5 text-muted-foreground">No hay artículos que mostrar con estos filtros.</p>
+      </div>
+    );
+  }
+
+  const hasSeveralLists = entries.some(entry => entry.listName !== entries[0]?.listName);
+
+  return (
+    <div className="mt-5 space-y-3">
+      {entries.map(({ item, listName }) => {
+        const tags = parseTags(item.tagsJson);
+        const isCompleted = item.status === "completed";
+        const isArchived = item.status === "archived";
+        const priority = priorityInfo(item.priority);
+
+        return (
+          <article key={item.id} className={`theme-item-card group relative flex gap-3 rounded-2xl border p-3.5 transition-all sm:p-4 ${isArchived ? "border-[#ead8cf] bg-[#fdf5f1] dark:bg-[#322822]" : isCompleted ? "border-[#dce8df] bg-[#f3f8f3] dark:bg-[#203529]" : "border-[#ebe7da] bg-white hover:-translate-y-0.5 hover:shadow-md"}`}>
+            <button onClick={() => !isArchived && onToggle(item.id)} disabled={isArchived} className={`mt-0.5 grid size-7 shrink-0 place-items-center rounded-full border-2 transition-colors ${isCompleted ? "border-[#438866] bg-[#438866] text-white" : isArchived ? "border-[#d9bdb1] bg-transparent text-transparent dark:border-[#705345]" : "border-[#c8d5c9] bg-white text-transparent hover:border-[#438866] dark:bg-secondary dark:hover:border-primary"}`} aria-label={isCompleted ? `Marcar ${item.name} como pendiente` : `Marcar ${item.name} como comprado`}>
+              <Check className="size-4 stroke-[3]" />
+            </button>
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                <h3 className={`font-bold ${isCompleted || isArchived ? "text-[#738074] line-through dark:text-muted-foreground" : "text-[#3e483d] dark:text-foreground"}`}>{item.name}</h3>
+                <span className={`inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[11px] font-bold ${priorityClass(item.priority)}`}><Flag className="size-2.5" />{priority.label}</span>
+              </div>
+              <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-muted-foreground"><CalendarDays className="size-3" />{deadlineText(item.deadline)}</span>
+                {tags.map(currentTag => <span key={currentTag} className="theme-tag inline-flex items-center gap-1 rounded-full bg-[#f0f4ef] px-2 py-0.5 text-[11px] font-semibold text-[#667564]"><Tags className="size-2.5" />{currentTag}</span>)}
+                {hasSeveralLists && <span className="text-[11px] text-muted-foreground">{listName}</span>}
+              </div>
+              {item.note && <p className="theme-note mt-2 rounded-lg bg-[#f6f5ef] px-2.5 py-1.5 text-xs leading-5 text-[#5b6658]">{item.note}</p>}
+              <p className="mt-2 text-[11px] text-muted-foreground">Añadido por {item.createdBy}{isCompleted && item.completedBy ? ` · Comprado por ${item.completedBy}` : ""}{isArchived && item.archiveReason ? ` · ${item.archiveReason}` : ""}</p>
+            </div>
+            <div className="flex shrink-0 gap-1 self-start">
+              {isArchived ? (
+                <button onClick={() => onRestore(item.id)} className="theme-action-button grid size-8 place-items-center rounded-lg text-[#6d786a] hover:bg-white hover:text-[#3f8765]" aria-label={`Restaurar ${item.name}`}><RotateCcw className="size-4" /></button>
+              ) : (
+                <>
+                  <button onClick={() => onEdit({ id: item.id, name: item.name, priority: item.priority, deadline: dateInputValue(item.deadline), note: item.note ?? "", tags })} className="theme-action-button grid size-8 place-items-center rounded-lg text-[#788175] hover:bg-[#edf2ea] hover:text-[#3f8765]" aria-label={`Editar ${item.name}`}><Pencil className="size-3.5" /></button>
+                  <button onClick={() => onArchive({ id: item.id, name: item.name })} className="theme-action-button theme-danger-action grid size-8 place-items-center rounded-lg text-[#788175] hover:bg-[#fff0eb] hover:text-[#b55d45]" aria-label={`Quitar ${item.name}`}><Trash2 className="size-3.5" /></button>
+                </>
+              )}
+            </div>
+          </article>
+        );
+      })}
+    </div>
+  );
 }
 
 function ActivityPanel({ entries, isLoading, error, onRetry, compact = false }: { entries: Array<{ id: string; action: string; actorName: string; description: string; createdAt: Date }>; isLoading: boolean; error: unknown; onRetry: () => void; compact?: boolean }) {
@@ -424,7 +480,7 @@ function FormHeading({ kicker, title, onBack }: { kicker: string; title: string;
 function TextField({ label, value, onChange, placeholder = "", type = "text", autoFocus = false, className = "", compact = false }: { label: string; value: string; onChange: (value: string) => void; placeholder?: string; type?: string; autoFocus?: boolean; className?: string; compact?: boolean }) { return <label className={`grid gap-1.5 text-sm font-semibold text-[#4f594c] ${compact ? "text-xs" : ""}`}><span>{label}</span><Input type={type} value={value} onChange={event => onChange(event.target.value)} placeholder={placeholder} autoFocus={autoFocus} className={`h-11 rounded-xl border-[#e3e0d6] bg-white font-normal placeholder:text-[#a6aaa1] ${className}`} /></label>; }
 function FormError({ message }: { message: string }) { return <p role="alert" className="rounded-xl bg-[#fff0eb] px-3 py-2.5 text-sm font-medium text-[#a74b37]">{message}</p>; }
 function FeaturePill({ icon, text }: { icon: React.ReactNode; text: string }) { return <div className="flex items-center justify-center gap-1.5 rounded-xl bg-white/60 px-2 py-2.5 shadow-sm"><span className="text-[#548061]">{icon}</span>{text}</div>; }
-function StatusButton({ value, current, onChange }: { value: ViewStatus; current: ViewStatus; onChange: (value: ViewStatus) => void }) { return <button onClick={() => onChange(value)} className={`shrink-0 rounded-full px-3.5 py-2 text-xs font-bold transition-colors ${current === value ? "bg-[#3f8765] text-white" : "bg-[#f1f2eb] text-[#667060] hover:bg-[#e6ebdf]"}`}>{statusLabels[value]}</button>; }
+function StatusButton({ value, current, onChange }: { value: ViewStatus; current: ViewStatus; onChange: (value: ViewStatus) => void }) { return <button onClick={() => onChange(value)} className={`shrink-0 rounded-full px-3.5 py-2 text-xs font-bold transition-colors ${current === value ? "bg-[#3f8765] text-white dark:bg-[#2e6d52]" : "bg-[#f1f2eb] text-[#667060] hover:bg-[#e6ebdf] dark:bg-secondary dark:text-foreground"}`}>{statusLabels[value]}</button>; }
 function ListTabsSkeleton() { return <><div className="h-16 w-28 shrink-0 animate-pulse rounded-2xl bg-[#edf0e8]" /><div className="h-16 w-28 shrink-0 animate-pulse rounded-2xl bg-[#edf0e8]" /></>; }
 function ItemSkeleton() { return <div className="h-24 animate-pulse rounded-2xl bg-[#f2f3ed]" />; }
 function ActivitySkeleton() { return <div className="h-10 animate-pulse rounded-xl bg-[#f2f3ed]" />; }
