@@ -30,6 +30,10 @@ Si defines `DATABASE_URL`, la aplicación usa MySQL/TiDB con Drizzle. Si no defi
 | --- | --- |
 | `DATABASE_URL` | Opcional. Conecta Drizzle y el seed con una base MySQL/TiDB. |
 | `JWT_SECRET` | Firma y verifica la cookie de sesión compartida por familia. |
+| `SINGLE_FAMILY_MODE` | Activa en el backend el acceso a una sola familia configurada. Usa `true` o `false`. |
+| `SINGLE_FAMILY_INVITE_CODE` | Opcional. Código de invitación de la familia permitida en modo familia única. |
+| `SINGLE_FAMILY_ID` | Opcional. Identificador interno de la familia permitida en modo familia única. Tiene prioridad sobre `SINGLE_FAMILY_INVITE_CODE`. |
+| `VITE_SINGLE_FAMILY_MODE` | Activa en el frontend la pantalla simple donde solo se pide el nombre del familiar. |
 | `NODE_ENV` | Activa los ajustes de desarrollo o producción. |
 | `LOCAL_DATA_FILE` | Opcional. Cambia la ruta del archivo JSON local. |
 
@@ -52,6 +56,28 @@ pnpm db:push
 pnpm seed
 pnpm dev
 ```
+
+## Modo de familia única
+
+Para probar la aplicación con una sola familia sin eliminar el flujo público original, activa el modo de familia única en backend y frontend. En este modo la pantalla inicial muestra únicamente un formulario para escribir el nombre del familiar; el navegador no envía ni elige el código o identificador de familia.
+
+Configura una familia existente por código de invitación:
+
+```bash
+SINGLE_FAMILY_MODE=true
+SINGLE_FAMILY_INVITE_CODE=HOGAR-2026
+VITE_SINGLE_FAMILY_MODE=true
+```
+
+O configúrala por identificador interno:
+
+```bash
+SINGLE_FAMILY_MODE=true
+SINGLE_FAMILY_ID=fam_xxxxxxxxxxxxxxxx
+VITE_SINGLE_FAMILY_MODE=true
+```
+
+Si defines ambos, `SINGLE_FAMILY_ID` tiene prioridad. El acceso crea la misma cookie HTTP-only que el flujo normal y registra la entrada del familiar en el historial. Para volver al login público de crear o unirse con código, deja `SINGLE_FAMILY_MODE=false` y `VITE_SINGLE_FAMILY_MODE=false`.
 
 Para generar una versión de producción y servirla localmente, ejecuta lo siguiente.
 
