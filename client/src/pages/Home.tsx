@@ -97,11 +97,20 @@ function LoadingScreen() {
 function WelcomeScreen() {
   const utils = trpc.useUtils();
   const { theme, toggleTheme } = useTheme();
+  const singleFamilyMode = import.meta.env.VITE_SINGLE_FAMILY_MODE === "true";
   const [mode, setMode] = useState<"choose" | "create" | "join">("choose");
   const [createForm, setCreateForm] = useState({ familyName: "", memberName: "", password: "", confirmation: "", initialListName: "Compra semanal" });
   const [joinForm, setJoinForm] = useState({ inviteCode: "", password: "", memberName: "" });
+  const [singleForm, setSingleForm] = useState({ memberName: "" });
   const [formError, setFormError] = useState("");
 
+  const singleAccess = trpc.family.singleAccess.useMutation({
+    onSuccess: async result => {
+      toast.success(`Hola, ${result.memberName}`, { description: "Tu lista familiar está lista." });
+      await utils.family.current.invalidate();
+    },
+    onError: error => setFormError(friendlyError(error)),
+  });
   const create = trpc.family.create.useMutation({
     onSuccess: async result => {
       toast.success("La familia ya está lista", { description: `Código compartible: ${result.family.inviteCode}` });
@@ -130,6 +139,12 @@ function WelcomeScreen() {
       password: createForm.password,
       initialListName: createForm.initialListName,
     });
+  };
+
+  const accessSingleFamily = async (event: FormEvent) => {
+    event.preventDefault();
+    setFormError("");
+    await singleAccess.mutateAsync({ memberName: singleForm.memberName });
   };
 
   const joinFamily = async (event: FormEvent) => {
@@ -161,7 +176,7 @@ function WelcomeScreen() {
               Comprar en familia, <span className="text-[#438866]">sin perder el hilo.</span>
             </h1>
             <p className="mt-6 max-w-lg text-base leading-7 text-muted-foreground sm:text-lg">
-              Una lista compartida, cálida y sencilla para que cada compra llegue a casa. Comparte el código con quien quieras.
+              {singleFamilyMode ? "Escribe tu nombre y entra directo a la lista compartida de casa." : "Una lista compartida, cálida y sencilla para que cada compra llegue a casa. Comparte el código con quien quieras."}
             </p>
             <div className="mt-7 grid max-w-lg grid-cols-3 gap-3 text-center text-xs font-semibold text-[#5c6759] sm:gap-4">
               <FeaturePill icon={<UsersRound className="size-4" />} text="Una familia" />
@@ -171,8 +186,21 @@ function WelcomeScreen() {
           </div>
 
           <section className="theme-surface paper-grain rise-in rounded-[2rem] border border-white/75 bg-[#fffdf8]/90 p-5 soft-shadow backdrop-blur sm:p-7" style={{ animationDelay: "130ms" }} aria-label="Acceso a Lista Familiar">
-            {mode === "choose" && <ChooseAccess onCreate={() => { setFormError(""); setMode("create"); }} onJoin={() => { setFormError(""); setMode("join"); }} />}
-            {mode === "create" && (
+            {singleFamilyMode ? (
+              <form onSubmit={accessSingleFamily} className="space-y-4">
+                <div className="mb-7">
+                  <p className="mb-2 text-xs font-bold tracking-[.1em] text-[#548061] uppercase">Lista de casa</p>
+                  <h2 className="font-display text-3xl tracking-[-.045em] text-[#3f483b]">¿Quién está entrando?</h2>
+                  <p className="mt-2 text-sm leading-5 text-muted-foreground">Escribe tu nombre para continuar con la lista familiar.</p>
+                </div>
+                <TextField label="Tu nombre" value={singleForm.memberName} onChange={value => setSingleForm({ memberName: value })} placeholder="Ej. Marta" autoFocus />
+                {formError && <FormError message={formError} />}
+                <Button type="submit" className="h-12 w-full rounded-2xl bg-[#438866] text-sm font-bold hover:bg-[#367653]" disabled={singleAccess.isPending}>
+                  {singleAccess.isPending ? <Loader2 className="size-4 animate-spin" /> : <UsersRound className="size-4" />} Entrar a la lista
+                </Button>
+              </form>
+            ) : mode === "choose" && <ChooseAccess onCreate={() => { setFormError(""); setMode("create"); }} onJoin={() => { setFormError(""); setMode("join"); }} />}
+            {!singleFamilyMode && mode === "create" && (
               <form onSubmit={createFamily} className="space-y-4">
                 <FormHeading kicker="Tu rincón compartido" title="Crea tu familia" onBack={() => setMode("choose")} />
                 <TextField label="Nombre de la familia" value={createForm.familyName} onChange={value => setCreateForm({ ...createForm, familyName: value })} placeholder="Ej. Casa Moreno" autoFocus />
@@ -191,7 +219,7 @@ function WelcomeScreen() {
                 </Button>
               </form>
             )}
-            {mode === "join" && (
+            {!singleFamilyMode && mode === "join" && (
               <form onSubmit={joinFamily} className="space-y-4">
                 <FormHeading kicker="Qué alegría verte" title="Únete a una familia" onBack={() => setMode("choose")} />
                 <TextField label="Código familiar" value={joinForm.inviteCode} onChange={value => setJoinForm({ ...joinForm, inviteCode: value.toUpperCase() })} placeholder="CASA-1234" autoFocus className="font-mono uppercase tracking-[.12em]" />
@@ -207,7 +235,7 @@ function WelcomeScreen() {
         </section>
 
         <p className="rise-in text-center text-xs leading-5 text-muted-foreground" style={{ animationDelay: "220ms" }}>
-          Quien tenga el código —y la contraseña, si existe— podrá consultar y actualizar las listas.
+          {singleFamilyMode ? "El acceso está limitado a la familia configurada en el servidor." : "Quien tenga el código —y la contraseña, si existe— podrá consultar y actualizar las listas."}
         </p>
       </div>
     </main>
