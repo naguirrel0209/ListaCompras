@@ -245,6 +245,7 @@ function WelcomeScreen() {
 function FamilyDashboard({ family }: { family: { family: { id: string; name: string; inviteCode: string; hasPassword: boolean }; memberName: string } }) {
   const utils = trpc.useUtils();
   const { theme, toggleTheme } = useTheme();
+  const singleFamilyMode = import.meta.env.VITE_SINGLE_FAMILY_MODE === "true";
   const [activeListId, setActiveListId] = useState("");
   const [status, setStatus] = useState<ViewStatus>("pending");
   const [search, setSearch] = useState("");
@@ -313,7 +314,7 @@ function FamilyDashboard({ family }: { family: { family: { id: string; name: str
           <div className="flex items-center gap-2">
             <button onClick={toggleTheme} className="theme-icon-control grid size-10 place-items-center rounded-xl text-[#657060] transition-colors hover:bg-[#edf3e9]" aria-label={theme === "light" ? "Activar modo oscuro" : "Activar modo claro"}>{theme === "light" ? <Moon className="size-4" /> : <Sun className="size-4" />}</button>
             <button onClick={() => setShowHistory(true)} className="grid size-10 place-items-center rounded-xl text-[#657060] transition-colors hover:bg-[#edf3e9]" aria-label="Abrir historial"><History className="size-4" /></button>
-            <button onClick={() => logout.mutate()} className="grid size-10 place-items-center rounded-xl text-[#657060] transition-colors hover:bg-[#fff0eb] hover:text-[#b55d45]" aria-label="Salir de la familia"><LogOut className="size-4" /></button>
+            {!singleFamilyMode && <button onClick={() => logout.mutate()} className="grid size-10 place-items-center rounded-xl text-[#657060] transition-colors hover:bg-[#fff0eb] hover:text-[#b55d45]" aria-label="Salir de la familia"><LogOut className="size-4" /></button>}
           </div>
         </header>
 
