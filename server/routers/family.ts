@@ -3,7 +3,7 @@ import { z } from "zod";
 import { clearFamilySession, getFamilySession, writeFamilySession } from "../family-session";
 import { hashSharedPassword, verifySharedPassword } from "../family-security";
 import { createFamily, findFamilyById, findFamilyByInviteCode, inviteCodeExists, recordActivity } from "../family-repository";
-import { getConfiguredSingleFamily } from "../single-family-mode";
+import { getConfiguredSingleFamily, isSingleFamilyMode } from "../single-family-mode";
 import { familyProcedure, publicProcedure, router } from "../_core/trpc";
 
 const name = z.string().trim().min(2, "Escribe al menos 2 caracteres.").max(80, "No puede superar 80 caracteres.");
@@ -102,6 +102,9 @@ export const familyRouter = router({
   }),
 
   logout: familyProcedure.mutation(({ ctx }) => {
+    if (isSingleFamilyMode()) {
+      throw new TRPCError({ code: "FORBIDDEN", message: "La salida está deshabilitada en modo de familia única." });
+    }
     clearFamilySession(ctx.req, ctx.res);
     return { success: true } as const;
   }),

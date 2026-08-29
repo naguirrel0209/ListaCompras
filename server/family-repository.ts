@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, like, or, sql } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, like, or, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import {
   activities,
@@ -227,33 +227,37 @@ export async function getItemForFamily(itemId: string, familyId: string) {
 }
 
 export async function createShoppingItem(input: {
-  familyId: string; shoppingListId: string; name: string; quantity: number; priority: ItemPriority;
-  deadline: Date; note?: string; tags: string[]; createdBy: string;
+  familyId: string; shoppingListId: string; shoppingListIds?: string[]; name: string; quantity?: number; priority: ItemPriority;
+  deadline: Date | null; note?: string; tags: string[]; createdBy: string;
 }) {
   if (useLocalRepository()) return localRepository.createShoppingItem(input);
   const db = await database();
   const now = new Date();
-  const item = {
-    id: id("item"), shoppingListId: input.shoppingListId, name: input.name, quantity: input.quantity.toFixed(2),
+  const shoppingListIds = Array.from(new Set([...(input.shoppingListIds ?? []), input.shoppingListId]));
+  const sharedItemId = id("share");
+  const items = shoppingListIds.map(shoppingListId => ({
+    id: id("item"), sharedItemId, shoppingListId, name: input.name, quantity: (input.quantity ?? 1).toFixed(2),
     category: "General", tagsJson: JSON.stringify(input.tags), priority: input.priority, deadline: input.deadline, note: input.note?.trim() || null, status: "pending" as const,
     createdBy: input.createdBy, completedBy: null, completedAt: null, archivedBy: null, archivedAt: null,
     archiveReason: null, createdAt: now, updatedAt: now,
-  };
+  }));
   await db.transaction(async tx => {
-    await tx.insert(shoppingItems).values(item);
-    await tx.insert(activities).values({
-      id: id("act"), familyId: input.familyId, shoppingListId: input.shoppingListId, shoppingItemId: item.id,
+    await tx.insert(shoppingItems).values(items);
+    await tx.insert(activities).values(items.map(item => ({
+      id: id("act"), familyId: input.familyId, shoppingListId: item.shoppingListId, shoppingItemId: item.id,
       action: "articulo_agregado", actorName: input.createdBy,
       description: `Agregó “${item.name}” a la lista.`, createdAt: now,
-    });
+    })));
   });
-  return item;
+  return items[0];
 }
 
 export async function updateShoppingItem(input: {
-  familyId: string; itemId: string; name?: string; quantity?: number; priority?: ItemPriority; deadline?: Date; note?: string; tags?: string[]; actorName: string;
+  familyId: string; itemId: string; name?: string; quantity?: number; priority?: ItemPriority; deadline?: Date | null; note?: string; tags?: string[]; actorName: string;
 }) {
   if (useLocalRepository()) return localRepository.updateShoppingItem(input);
+  const item = await getItemForFamily(input.itemId, input.familyId);
+  if (!item) return undefined;
   const db = await database();
   const changes: Record<string, unknown> = { updatedAt: new Date() };
   if (input.name !== undefined) changes.name = input.name;
@@ -262,11 +266,19 @@ export async function updateShoppingItem(input: {
   if (input.deadline !== undefined) changes.deadline = input.deadline;
   if (input.note !== undefined) changes.note = input.note.trim() || null;
   if (input.tags !== undefined) changes.tagsJson = JSON.stringify(input.tags);
-  await db.update(shoppingItems).set(changes).where(eq(shoppingItems.id, input.itemId));
-  const item = await getItemForFamily(input.itemId, input.familyId);
-  if (!item) return undefined;
-  await recordActivity({ familyId: input.familyId, listId: item.item.shoppingListId, itemId: input.itemId, action: "articulo_editado", actorName: input.actorName, description: `Editó “${item.item.name}”.` });
-  return item;
+  const sharedItemId = item.item.sharedItemId ?? item.item.id;
+  const sharedRows = await db
+    .select({ id: shoppingItems.id })
+    .from(shoppingItems)
+    .innerJoin(shoppingLists, eq(shoppingItems.shoppingListId, shoppingLists.id))
+    .where(and(eq(shoppingLists.familyId, input.familyId), eq(shoppingItems.sharedItemId, sharedItemId)));
+  const itemIds = sharedRows.length > 0 ? sharedRows.map(row => row.id) : [input.itemId];
+
+  await db.update(shoppingItems).set(changes).where(inArray(shoppingItems.id, itemIds));
+  const updated = await getItemForFamily(input.itemId, input.familyId);
+  if (!updated) return undefined;
+  await recordActivity({ familyId: input.familyId, listId: updated.item.shoppingListId, itemId: input.itemId, action: "articulo_editado", actorName: input.actorName, description: `Editó “${updated.item.name}”.` });
+  return updated;
 }
 
 export async function setItemStatus(input: {

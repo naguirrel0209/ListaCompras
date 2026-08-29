@@ -26,6 +26,7 @@ type ShoppingList = {
 
 type ShoppingItem = {
   id: string;
+  sharedItemId?: string | null;
   shoppingListId: string;
   name: string;
   quantity: string;
@@ -301,21 +302,25 @@ export async function getItemForFamily(itemId: string, familyId: string) {
 export async function createShoppingItem(input: {
   familyId: string;
   shoppingListId: string;
+  shoppingListIds?: string[];
   name: string;
-  quantity: number;
+  quantity?: number;
   priority: ItemPriority;
-  deadline: Date;
+  deadline: Date | null;
   note?: string;
   tags: string[];
   createdBy: string;
 }) {
   const data = await readData();
   const now = new Date();
-  const item: ShoppingItem = {
+  const shoppingListIds = Array.from(new Set([...(input.shoppingListIds ?? []), input.shoppingListId]));
+  const sharedItemId = localId("share");
+  const items: ShoppingItem[] = shoppingListIds.map(shoppingListId => ({
     id: localId("item"),
-    shoppingListId: input.shoppingListId,
+    sharedItemId,
+    shoppingListId,
     name: input.name,
-    quantity: input.quantity.toFixed(2),
+    quantity: (input.quantity ?? 1).toFixed(2),
     category: "General",
     tagsJson: JSON.stringify(input.tags),
     priority: input.priority,
@@ -330,21 +335,21 @@ export async function createShoppingItem(input: {
     archiveReason: null,
     createdAt: now,
     updatedAt: now,
-  };
+  }));
 
-  data.shoppingItems.push(item);
-  data.activities.push({
+  data.shoppingItems.push(...items);
+  data.activities.push(...items.map(item => ({
     id: localId("act"),
     familyId: input.familyId,
-    shoppingListId: input.shoppingListId,
+    shoppingListId: item.shoppingListId,
     shoppingItemId: item.id,
     action: "articulo_agregado",
     actorName: input.createdBy,
     description: `Agregó "${item.name}" a la lista.`,
     createdAt: now,
-  });
+  })));
   await writeData(data);
-  return item;
+  return items[0];
 }
 
 export async function updateShoppingItem(input: {
@@ -353,7 +358,7 @@ export async function updateShoppingItem(input: {
   name?: string;
   quantity?: number;
   priority?: ItemPriority;
-  deadline?: Date;
+  deadline?: Date | null;
   note?: string;
   tags?: string[];
   actorName: string;
@@ -363,13 +368,19 @@ export async function updateShoppingItem(input: {
   const list = item ? data.shoppingLists.find(current => current.id === item.shoppingListId && current.familyId === input.familyId) : undefined;
   if (!item || !list) return undefined;
 
-  if (input.name !== undefined) item.name = input.name;
-  if (input.quantity !== undefined) item.quantity = input.quantity.toFixed(2);
-  if (input.priority !== undefined) item.priority = input.priority;
-  if (input.deadline !== undefined) item.deadline = input.deadline;
-  if (input.note !== undefined) item.note = input.note.trim() || null;
-  if (input.tags !== undefined) item.tagsJson = JSON.stringify(input.tags);
-  item.updatedAt = new Date();
+  const familyListIds = new Set(data.shoppingLists.filter(current => current.familyId === input.familyId).map(current => current.id));
+  const sharedItemId = item.sharedItemId ?? item.id;
+  const sharedItems = data.shoppingItems.filter(current => familyListIds.has(current.shoppingListId) && (current.sharedItemId ?? current.id) === sharedItemId);
+  const updatedAt = new Date();
+  for (const current of sharedItems) {
+    if (input.name !== undefined) current.name = input.name;
+    if (input.quantity !== undefined) current.quantity = input.quantity.toFixed(2);
+    if (input.priority !== undefined) current.priority = input.priority;
+    if (input.deadline !== undefined) current.deadline = input.deadline;
+    if (input.note !== undefined) current.note = input.note.trim() || null;
+    if (input.tags !== undefined) current.tagsJson = JSON.stringify(input.tags);
+    current.updatedAt = updatedAt;
+  }
 
   data.activities.push({
     id: localId("act"),

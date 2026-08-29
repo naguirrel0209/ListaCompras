@@ -6,8 +6,16 @@ import { familyProcedure, router } from "../_core/trpc";
 const itemName = z.string().trim().min(1, "Escribe el nombre del artículo.").max(120, "El nombre es demasiado largo.");
 const tags = z.array(z.string().trim().min(1).max(24)).max(5).default([]);
 const priority = z.enum(["critical", "high", "medium", "low"]);
-const deadline = z.coerce.date({ error: "Elige una fecha límite válida." });
+const deadline = z.preprocess(
+  value => value === null || value === "" ? null : value,
+  z.coerce.date({ error: "Elige una fecha límite válida." }).nullable(),
+);
 const note = z.string().trim().max(300, "El comentario no puede superar 300 caracteres.").optional();
+const listIds = z.array(z.string().min(1)).max(20, "Selecciona menos listas.").optional();
+
+function uniqueListIds(input: { listId?: string; listIds?: string[] }) {
+  return Array.from(new Set([...(input.listIds ?? []), ...(input.listId ? [input.listId] : [])]));
+}
 
 export const itemsRouter = router({
   all: familyProcedure.input(z.object({
@@ -16,13 +24,22 @@ export const itemsRouter = router({
     sortBy: z.enum(["priority", "deadline", "newest", "oldest", "nameAsc", "nameDesc"]).optional(),
   }).optional()).query(({ ctx, input }) => getItemsForFamily(ctx.familySession.familyId, input ?? {})),
 
-  create: familyProcedure.input(z.object({ listId: z.string().min(1), name: itemName, quantity: z.coerce.number().positive("La cantidad debe ser mayor que cero.").max(9999), priority, deadline, note, tags })).mutation(async ({ ctx, input }) => {
-    const list = await getListForFamily(input.listId, ctx.familySession.familyId);
-    if (!list) throw new TRPCError({ code: "FORBIDDEN", message: "No puedes agregar artículos a esa lista." });
-    return createShoppingItem({ familyId: ctx.familySession.familyId, shoppingListId: input.listId, name: input.name, quantity: input.quantity, priority: input.priority, deadline: input.deadline, note: input.note, tags: input.tags, createdBy: ctx.familySession.memberName });
+  create: familyProcedure.input(z.object({
+    listId: z.string().min(1).optional(),
+    listIds,
+    name: itemName,
+    priority,
+    deadline: deadline.optional(),
+    note,
+    tags,
+  }).refine(input => uniqueListIds(input).length > 0, "Selecciona al menos una lista.")).mutation(async ({ ctx, input }) => {
+    const selectedListIds = uniqueListIds(input);
+    const lists = await Promise.all(selectedListIds.map(listId => getListForFamily(listId, ctx.familySession.familyId)));
+    if (lists.some(list => !list)) throw new TRPCError({ code: "FORBIDDEN", message: "No puedes agregar artículos a una lista que no pertenece a tu familia." });
+    return createShoppingItem({ familyId: ctx.familySession.familyId, shoppingListId: selectedListIds[0]!, shoppingListIds: selectedListIds, name: input.name, priority: input.priority, deadline: input.deadline ?? null, note: input.note, tags: input.tags, createdBy: ctx.familySession.memberName });
   }),
 
-  update: familyProcedure.input(z.object({ itemId: z.string().min(1), name: itemName.optional(), quantity: z.coerce.number().positive().max(9999).optional(), priority: priority.optional(), deadline: deadline.optional(), note, tags: tags.optional() })).mutation(async ({ ctx, input }) => {
+  update: familyProcedure.input(z.object({ itemId: z.string().min(1), name: itemName.optional(), priority: priority.optional(), deadline: deadline.optional(), note, tags: tags.optional() })).mutation(async ({ ctx, input }) => {
     const item = await getItemForFamily(input.itemId, ctx.familySession.familyId);
     if (!item) throw new TRPCError({ code: "NOT_FOUND", message: "No encontramos ese artículo." });
     return updateShoppingItem({ familyId: ctx.familySession.familyId, actorName: ctx.familySession.memberName, ...input });
