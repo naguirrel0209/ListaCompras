@@ -3,6 +3,7 @@ import { z } from "zod";
 import { clearFamilySession, getFamilySession, writeFamilySession } from "../family-session";
 import { hashSharedPassword, verifySharedPassword } from "../family-security";
 import { createFamily, findFamilyById, findFamilyByInviteCode, inviteCodeExists, recordActivity } from "../family-repository";
+import { getConfiguredSingleFamily } from "../single-family-mode";
 import { familyProcedure, publicProcedure, router } from "../_core/trpc";
 
 const name = z.string().trim().min(2, "Escribe al menos 2 caracteres.").max(80, "No puede superar 80 caracteres.");
@@ -23,6 +24,25 @@ function publicFamily(family: { id: string; name: string; inviteCode: string; pa
 }
 
 export const familyRouter = router({
+  singleAccess: publicProcedure.input(z.object({
+    memberName: name,
+  })).mutation(async ({ ctx, input }) => {
+    const family = await getConfiguredSingleFamily();
+    if (!family) throw new TRPCError({ code: "NOT_FOUND", message: "La familia única no está activa." });
+
+    await writeFamilySession(ctx.req, ctx.res, { familyId: family.id, memberName: input.memberName });
+    await recordActivity({
+      familyId: family.id,
+      listId: null,
+      itemId: null,
+      action: "miembro_ingreso",
+      actorName: input.memberName,
+      description: "Ingresó a la lista familiar.",
+    });
+
+    return { family: publicFamily(family), memberName: input.memberName };
+  }),
+
   create: publicProcedure.input(z.object({
     familyName: name,
     memberName: name,
@@ -64,10 +84,16 @@ export const familyRouter = router({
   }),
 
   current: publicProcedure.query(async ({ ctx }) => {
+    const singleFamily = await getConfiguredSingleFamily();
     const familySession = await getFamilySession(ctx.req);
     if (!familySession) return null;
 
-    const family = await findFamilyById(familySession.familyId);
+    if (singleFamily && familySession.familyId !== singleFamily.id) {
+      clearFamilySession(ctx.req, ctx.res);
+      return null;
+    }
+
+    const family = singleFamily ?? await findFamilyById(familySession.familyId);
     if (!family) {
       clearFamilySession(ctx.req, ctx.res);
       return null;

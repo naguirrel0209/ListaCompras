@@ -2,6 +2,7 @@ import { FAMILY_SESSION_REQUIRED_ERR_MSG, NOT_ADMIN_ERR_MSG, UNAUTHED_ERR_MSG } 
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { getFamilySession } from "../family-session";
+import { assertSingleFamilySession } from "../single-family-mode";
 import type { TrpcContext } from "./context";
 
 const t = initTRPC.context<TrpcContext>().create({
@@ -33,6 +34,7 @@ const requireFamilySession = t.middleware(async ({ ctx, next }) => {
   if (!familySession) {
     throw new TRPCError({ code: "UNAUTHORIZED", message: FAMILY_SESSION_REQUIRED_ERR_MSG });
   }
+  await assertSingleFamilySession(familySession.familyId);
   return next({ ctx: { ...ctx, familySession } });
 });
 
